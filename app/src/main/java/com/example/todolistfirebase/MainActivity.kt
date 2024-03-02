@@ -3,7 +3,6 @@ package com.example.todolistfirebase
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.todolistfirebase.databinding.ActivityMainBinding
 import com.google.firebase.database.DatabaseReference
@@ -20,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize Firebase database reference
         database = FirebaseDatabase.getInstance().reference.child("tasks")
 
         adapter = TaskAdapter(viewModel)
@@ -32,16 +30,17 @@ class MainActivity : AppCompatActivity() {
 
         adapter.attachSwipeToDelete(binding.recyclerView)
 
-        viewModel.listState.observe(this, Observer { state ->
+        viewModel.listState.observe(this) { state ->
             when (state) {
                 is TaskViewModel.ListState.EmptyList -> {
-                    // Handle empty state if needed
+
                 }
+
                 is TaskViewModel.ListState.UpdatedList -> {
                     adapter.submitList(state.list)
                 }
             }
-        })
+        }
 
         binding.btnAddTask.setOnClickListener {
             val title = binding.etTitle.text.toString()

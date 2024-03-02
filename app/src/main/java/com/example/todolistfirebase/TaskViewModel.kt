@@ -1,7 +1,5 @@
 package com.example.todolistfirebase
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,7 +8,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.core.Tag
 
 class TaskViewModel : ViewModel() {
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference.child("tasks")
@@ -22,16 +19,18 @@ class TaskViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val taskList = mutableListOf<Task>()
                 for (taskSnapshot in snapshot.children) {
-                    val task = taskSnapshot.getValue(Task::class.java)
-                    task?.let {
-                        taskList.add(it)
-                    }
+                    val id = taskSnapshot.key
+                    val title = taskSnapshot.child("title").getValue(String::class.java) ?: ""
+                    val description = taskSnapshot.child("description").getValue(String::class.java) ?: ""
+                    val completed = taskSnapshot.child("completed").getValue(Boolean::class.java) ?: false
+                    val task = Task(id, title, description, completed)
+                    taskList.add(task)
                 }
                 _listState.postValue(ListState.UpdatedList(list = taskList))
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+
             }
         })
     }
@@ -40,13 +39,8 @@ class TaskViewModel : ViewModel() {
         val taskId = database.push().key
         taskId?.let {
             database.child(it).setValue(task)
-                .addOnSuccessListener {
-                    Log.d(TAG, "Task added successfully")
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error adding task: $e")
 
-                }
+
         }
     }
 
@@ -66,9 +60,7 @@ class TaskViewModel : ViewModel() {
 
 data class Task(
     val id: String? = null,
-    val title: String,
-    val description: String,
+    val title: String = "",
+    val description: String ="",
     var completed: Boolean = false
-){
-    constructor(): this("","","", true)
-}
+)
