@@ -48,7 +48,7 @@ class TaskAdapter(private val viewModel: TaskViewModel) :
     }
 
     fun attachSwipeToDelete(recyclerView: RecyclerView) {
-        val swipeHandler = object : SwipeToDeleteCallback(recyclerView.context) {
+        val swipeHandler = object : SwipeToDeleteCallback() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
                 val taskToDelete = getItem(position)
